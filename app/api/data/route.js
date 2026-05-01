@@ -98,8 +98,10 @@ export async function GET(request) {
 
     const colName = String(collection);
     const existingCols = await listCollections();
+
+    // ✅ الإصلاح: لو الـ collection مش موجودة، ارجع array فاضية بدل 404
     if (!existingCols.includes(colName)) {
-      return jsonResponse({ error: `Collection '${colName}' not found` }, 404);
+      return jsonResponse([], 200);
     }
 
     const Model = getModelForCollection(colName);
