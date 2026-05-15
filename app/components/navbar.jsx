@@ -88,7 +88,7 @@ function UserDropdown({ user }) {
 }
 
 function AuthModal({ mode, onClose, onSwitch }) {
-  const [form, setForm] = useState({ nameOrEmail: "", name: "", email: "", phone: "", address: "", password: "" });
+const [form, setForm] = useState({ nameOrEmail: "", name: "", phone: "", address: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -117,7 +117,7 @@ function AuthModal({ mode, onClose, onSwitch }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.phone || !form.address || !form.password) {
+    if (!form.name || !form.phone || !form.address || !form.password) {
       setError("من فضلك ادخل جميع البيانات"); return;
     }
     setLoading(true);
@@ -129,14 +129,12 @@ function AuthModal({ mode, onClose, onSwitch }) {
         if (users.some(u => u.name?.toLowerCase().trim() === form.name.toLowerCase().trim())) {
           setError("الاسم ده موجود بالفعل، جرب اسم تاني"); setLoading(false); return;
         }
-        if (users.some(u => u.email?.toLowerCase().trim() === form.email.toLowerCase().trim())) {
-          setError("الإيميل ده مسجل بالفعل، جرب تسجيل الدخول"); setLoading(false); return;
-        }
       }
       const res = await fetch("/api/data?collection=auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, address: form.address, password: form.password }),
+        body: JSON.stringify({ name: form.name, phone: form.phone, address: form.address, password: form.password }),
+
       });
       if (!res.ok) throw new Error();
       const signInRes = await signIn("credentials", { redirect: false, nameOrEmail: form.email, password: form.password });
@@ -184,13 +182,12 @@ function AuthModal({ mode, onClose, onSwitch }) {
               {!isLogin && (
                 <>
                   <div><label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">الاسم الكامل</label><input type="text" value={form.name} onChange={handleChange("name")} placeholder="الاسم الكامل" className={inputClass} /></div>
-                  <div><label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">الإيميل</label><input type="email" value={form.email} onChange={handleChange("email")} placeholder="example@email.com" className={inputClass} dir="ltr" /></div>
                   <div><label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">رقم الهاتف</label><input type="tel" value={form.phone} onChange={handleChange("phone")} placeholder="01XXXXXXXXX" className={inputClass} dir="ltr" /></div>
                   <div><label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">العنوان</label><input type="text" value={form.address} onChange={handleChange("address")} placeholder="المدينة، الحي، الشارع" className={inputClass} /></div>
                 </>
               )}
               {isLogin && (
-                <div><label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">الاسم أو الإيميل</label><input type="text" value={form.nameOrEmail} onChange={handleChange("nameOrEmail")} placeholder="ادخل اسمك أو إيميلك" className={inputClass} /></div>
+                <div><label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">الاسم</label><input type="text" value={form.nameOrEmail} onChange={handleChange("nameOrEmail")} placeholder="ادخل اسمك" className={inputClass} /></div>
               )}
               <div>
                 <label className="block text-xs font-bold text-[#9a8c82] uppercase tracking-wider mb-1.5">كلمة المرور</label>
@@ -333,10 +330,10 @@ export default function Navbar() {
         {/* Navbar */}
         <nav
           className="navbar-nav bg-white border-b border-stone-100 px-4 sm:px-6 md:px-12 transition-all duration-300"
-          style={{
-            boxShadow: scrolled ? "0 4px 16px rgba(0,0,0,0.08)" : "none",
-            height: scrolled ? "56px" : "72px",
-          }}
+ style={{
+  boxShadow: "none",
+  height: "100px",  // كان 56px و 72px
+}}
         >
           <div className="relative flex items-center justify-between max-w-[1400px] mx-auto h-full">
 
@@ -354,36 +351,25 @@ export default function Navbar() {
             <ul className="hidden md:flex items-center gap-4 md:gap-7 list-none">
               {navLinks.map((link) => (
                 <li key={link.id}>
-                  <Link href={link.href} className="text-[14.5px] font-medium tracking-wide text-[#2c2c2c] border-b border-transparent pb-0.5 hover:text-black hover:border-black transition-all duration-200">
-                    {link.label}
-                  </Link>
+<Link href={link.href} className="text-[18px] font-medium tracking-wide text-[#2c2c2c] border-b border-transparent pb-0.5 hover:text-black hover:border-black transition-all duration-200">
+  {link.label}
+</Link>
                 </li>
               ))}
             </ul>
 
             {/* Logo */}
-            <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-center cursor-pointer select-none overflow-hidden">
-              <span
-                className="block font-bold text-[#1a1a1a] leading-tight transition-all duration-300"
-                style={{
-                  fontFamily: "'Amiri', serif",
-                  fontSize: scrolled ? "32px" : "40px",
-                }}
-              >
-                {store.name}
-              </span>
-              <span
-                className="block tracking-[0.18em] text-[#7a6e62] font-light transition-all duration-300 overflow-hidden"
-                style={{
-                  fontSize: scrolled ? "11px" : "13px",
-                  marginTop: scrolled ? "-2px" : "-3px",
-                  maxHeight: scrolled ? "0px" : "20px",
-                  opacity: scrolled ? 0 : 1,
-                }}
-              >
-                {store.nameEn}
-              </span>
-            </Link>
+<Link href="/" className="absolute left-1/2 -translate-x-1/2 text-center cursor-pointer select-none overflow-hidden">
+  <img
+    src="/dd55.png"
+    alt="logo"
+    className="transition-all duration-300 object-contain"
+style={{
+  height: "80px",  // كان 40px و 56px
+  filter: "brightness(0)",
+}}
+  />
+</Link>
 
             {/* Icons + Auth */}
             <div className="flex items-center gap-1.5 sm:gap-3">
@@ -395,7 +381,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => setAuthModal("login")}
-                    className="text-[13px] sm:text-[14px] font-medium text-[#2c2c2c] hover:text-black transition-colors duration-200 border-b border-transparent hover:border-[#2c2c2c] pb-0.5 hidden sm:block"
+                    className="text-[16px] sm:text-[14px] font-medium text-[#2c2c2c] hover:text-black transition-colors duration-200 border-b border-transparent hover:border-[#2c2c2c] pb-0.5 hidden sm:block"
                     style={{ fontFamily: "'Tajawal', sans-serif" }}
                   >
                     تسجيل الدخول
@@ -416,7 +402,7 @@ export default function Navbar() {
                 onClick={() => setIsCartOpen(true)}
                 className="relative p-1.5 rounded-full text-[#2c2c2c] transition-all duration-200 hover:bg-[#ede8e1] hover:text-black"
               >
-                <ShoppingBag size={20} strokeWidth={1.6} />
+                <ShoppingBag size={26} strokeWidth={1.6} />
                 {totalItems > 0 && (
                   <span
                     className="absolute -top-0.5 -left-0.5 rounded-full bg-stone-800 text-white flex items-center justify-center text-[9px] font-bold leading-none"

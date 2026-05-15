@@ -192,6 +192,7 @@ const Cart = ({ language = 'ar' }) => {
   const { data: session } = useSession();
   const [isClosing, setIsClosing] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loginError, setLoginError] = useState(false);
 
   useEffect(() => { setCurrentLanguage(language); }, [language, setCurrentLanguage]);
   useEffect(() => {
@@ -214,7 +215,11 @@ const Cart = ({ language = 'ar' }) => {
   };
 
   const handleCheckout = async () => {
-    if (!session?.user?.name) { window.location.href = '/login'; return; }
+    if (!session?.user?.name) {
+      setLoginError(true);
+      setTimeout(() => setLoginError(false), 3000);
+      return;
+    }
     if (!whatsappNumber) { alert(language === 'ar' ? 'رقم الواتساب غير متوفر' : 'WhatsApp number unavailable'); return; }
     try {
       const userResponse = await fetch('/api/data?collection=auth');
@@ -222,15 +227,23 @@ const Cart = ({ language = 'ar' }) => {
       let usersArray = userData.auth && Array.isArray(userData.auth) ? userData.auth : Array.isArray(userData) ? userData : [];
       const currentUser = usersArray.find(u => u.name === session.user.name);
       if (!currentUser) { alert('خطأ في تحميل بيانات المستخدم'); return; }
-      let message = `*طلب جديد / New Order*\n\n👤 *${currentUser.name}*\n📞 ${currentUser.phone}\n📍 ${currentUser.address}\n`;
-      if (currentUser.location) message += `🗺️ ${currentUser.location}\n`;
-      message += `\n*المنتجات:*\n${'─'.repeat(20)}\n`;
-      cartItems.forEach((item, index) => {
-        const price = extractPrice(item.price);
-        message += `${index + 1}. *${item.name}*\n   الكمية: ${item.quantity} × ${price.toFixed(2)} AED = ${(price * item.quantity).toFixed(2)} AED\n\n`;
-      });
-      message += `${'─'.repeat(20)}\n💰 *الإجمالي: ${getTotalPrice().toFixed(2)} AED*`;
-      window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+  let message = `*طلب جديد*\n`;
+message += `${'─'.repeat(25)}\n`;
+message += `الاسم: ${currentUser.name}\n`;
+message += `الهاتف: ${currentUser.phone}\n`;
+message += `العنوان: ${currentUser.address}\n`;
+if (currentUser.location) message += `الموقع: ${currentUser.location}\n`;
+message += `${'─'.repeat(25)}\n`;
+message += `*المنتجات:*\n`;
+cartItems.forEach((item, index) => {
+  const price = extractPrice(item.price);
+  message += `${index + 1}. ${item.name}\n`;
+  message += `   الكمية: ${item.quantity}\n`;
+  message += `   السعر: ${price.toFixed(2)} x ${item.quantity} = ${(price * item.quantity).toFixed(2)} ريال\n`;
+});
+message += `${'─'.repeat(25)}\n`;
+message += `*الاجمالي: ${getTotalPrice().toFixed(2)} ريال*`;
+ window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
       await clearCart();
     } catch (error) { console.error('Checkout error:', error); }
   };
@@ -269,7 +282,7 @@ const Cart = ({ language = 'ar' }) => {
       {/* Overlay */}
       <div className="fixed inset-0 bg-black/40" onClick={handleClose} style={{ zIndex: 98, animation: isClosing ? 'cart-overlay-out 0.32s ease forwards' : 'cart-overlay-in 0.32s ease' }} />
 
-      {/* Drawer — full width on mobile, fixed width on desktop */}
+      {/* Drawer */}
       <div
         className="fixed top-0 right-0 h-full flex flex-col bg-white shadow-2xl"
         style={{
@@ -352,6 +365,16 @@ const Cart = ({ language = 'ar' }) => {
                 {getTotalPrice().toFixed(2)} <span className="text-xs sm:text-sm font-semibold text-stone-400">{t.currency}</span>
               </span>
             </div>
+            {loginError && (
+              <div
+                className="flex items-center gap-2.5 px-4 py-3 text-white text-xs font-bold"
+                style={{ background: '#1a1a1a', animation: 'cart-item-in 0.3s ease both', fontFamily: "'Cairo', sans-serif" }}
+                dir="rtl"
+              >
+                <AlertCircle size={14} style={{ flexShrink: 0, color: '#c8a97e' }} />
+                <span>يجب تسجيل الدخول لإتمام الطلب</span>
+              </div>
+            )}
             <button onClick={handleCheckout} className="w-full py-3 sm:py-3.5 bg-stone-800 text-white text-xs sm:text-sm font-bold tracking-widest hover:bg-stone-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
               {t.order}
               <ArrowLeft size={13} />
