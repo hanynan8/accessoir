@@ -16,7 +16,7 @@ const EMPTY_PRODUCT = {
   description: '',
   image: '',
   price: 0,
-  currency: 'ريال',
+  currency: 'جنية',
   discount: { active: false },
   inStock: true,
   rating: 0,

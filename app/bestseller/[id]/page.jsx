@@ -137,7 +137,7 @@ export default function BestSellerProductDetailPage() {
               <button disabled={!product.inStock || adding} onClick={handleAddToCart} className={`w-full py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest transition-all duration-200 border ${product.inStock ? adding ? "bg-stone-600 text-white border-stone-600 cursor-wait" : "bg-black text-white border-black hover:bg-white hover:text-black" : "bg-stone-200 text-stone-400 border-transparent cursor-not-allowed"}`}>
                 {adding ? "جاري الإضافة..." : product.inStock ? "أضف إلى السلة" : "نفذ من المخزون"}
               </button>
-              <p className="text-center text-xs text-stone-400 tracking-widest">شحن مجاني للطلبات فوق 200 ريال</p>
+              <p className="text-center text-xs text-stone-400 tracking-widest">شحن مجاني للطلبات فوق 200 جنية</p>
             </div>
           </div>
         </div>

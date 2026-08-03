@@ -156,7 +156,7 @@ export default function ProductDetailPage() {
               >
                 {adding ? "جاري الإضافة..." : product.inStock ? "أضف إلى السلة" : "نفذ من المخزون"}
               </button>
-              <p className="text-center text-xs text-stone-400 tracking-widest">شحن مجاني للطلبات فوق 200 ريال</p>
+              <p className="text-center text-xs text-stone-400 tracking-widest">شحن مجاني للطلبات فوق 200 جنية</p>
             </div>
           </div>
         </div>

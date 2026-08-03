@@ -239,10 +239,10 @@ cartItems.forEach((item, index) => {
   const price = extractPrice(item.price);
   message += `${index + 1}. ${item.name}\n`;
   message += `   الكمية: ${item.quantity}\n`;
-  message += `   السعر: ${price.toFixed(2)} x ${item.quantity} = ${(price * item.quantity).toFixed(2)} ريال\n`;
+  message += `   السعر: ${price.toFixed(2)} x ${item.quantity} = ${(price * item.quantity).toFixed(2)} جنية\n`;
 });
 message += `${'─'.repeat(25)}\n`;
-message += `*الاجمالي: ${getTotalPrice().toFixed(2)} ريال*`;
+message += `*الاجمالي: ${getTotalPrice().toFixed(2)} جنية*`;
  window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
       await clearCart();
     } catch (error) { console.error('Checkout error:', error); }
