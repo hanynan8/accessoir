@@ -131,6 +131,32 @@ export async function POST(request) {
     const Model = getModelForCollection(colName);
 
     const body = await parseBody(request);
+
+    // 🔒 تحقق إضافي لمنع تكرار الاسم أو رقم الهاتف عند التسجيل
+    if (colName === "auth" && body && !Array.isArray(body)) {
+      const existingUsers = await Model.find({});
+
+      if (body.name) {
+        const normalizedName = String(body.name).toLowerCase().trim();
+        const nameExists = existingUsers.some(
+          (u) => u.name?.toLowerCase().trim() === normalizedName
+        );
+        if (nameExists) {
+          return jsonResponse({ error: "الاسم ده موجود بالفعل، جرب اسم تاني" }, 409);
+        }
+      }
+
+      if (body.phone) {
+        const normalizedPhone = String(body.phone).replace(/\s+/g, "").trim();
+        const phoneExists = existingUsers.some(
+          (u) => u.phone?.replace(/\s+/g, "").trim() === normalizedPhone
+        );
+        if (phoneExists) {
+          return jsonResponse({ error: "رقم الهاتف ده مسجل بحساب تاني بالفعل" }, 409);
+        }
+      }
+    }
+
     if (Array.isArray(body)) {
       const created = await Model.insertMany(body);
       return jsonResponse(created, 201);
@@ -143,7 +169,6 @@ export async function POST(request) {
     return jsonResponse({ error: err.message || "Internal server error" }, 500);
   }
 }
-
 export async function PUT(request) {
   try {
     await connectToMongo();

@@ -122,22 +122,33 @@ const [form, setForm] = useState({ nameOrEmail: "", name: "", phone: "", address
     }
     setLoading(true);
     try {
-      const checkRes = await fetch("/api/data?collection=auth", { cache: "no-store" });
-      if (checkRes.ok) {
-        const authData = await checkRes.json();
-        const users = Array.isArray(authData) ? authData : Array.isArray(authData.auth) ? authData.auth : Array.isArray(authData.data) ? authData.data : [];
-        if (users.some(u => u.name?.toLowerCase().trim() === form.name.toLowerCase().trim())) {
-          setError("الاسم ده موجود بالفعل، جرب اسم تاني"); setLoading(false); return;
-        }
-      }
+const checkRes = await fetch("/api/data?collection=auth", { cache: "no-store" });
+if (checkRes.ok) {
+  const authData = await checkRes.json();
+  const users = Array.isArray(authData) ? authData : Array.isArray(authData.auth) ? authData.auth : Array.isArray(authData.data) ? authData.data : [];
+
+  if (users.some(u => u.name?.toLowerCase().trim() === form.name.toLowerCase().trim())) {
+    setError("الاسم ده موجود بالفعل، جرب اسم تاني"); setLoading(false); return;
+  }
+
+  const normalizedPhone = form.phone.replace(/\s+/g, "").trim();
+  if (users.some(u => u.phone?.replace(/\s+/g, "").trim() === normalizedPhone)) {
+    setError("رقم الهاتف ده مسجل بحساب تاني بالفعل"); setLoading(false); return;
+  }
+}
       const res = await fetch("/api/data?collection=auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.name, phone: form.phone, address: form.address, password: form.password }),
 
       });
-      if (!res.ok) throw new Error();
-      const signInRes = await signIn("credentials", { redirect: false, nameOrEmail: form.email, password: form.password });
+      if (!res.ok) {
+  const errData = await res.json().catch(() => ({}));
+  setError(errData.error || "حصل خطأ، حاول تاني");
+  setLoading(false);
+  return;
+}
+      const signInRes = await signIn("credentials", { redirect: false, nameOrEmail: form.name, password: form.password });
       setLoading(false);
       if (signInRes?.error) { setError("تم التسجيل، حاول تسجيل الدخول"); onSwitch("login"); }
       else onClose();
